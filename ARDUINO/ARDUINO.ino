@@ -11,22 +11,21 @@ iarduino_GPS_NMEA gps;
 SoftwareSerial    SerialGPS(pinRX, pinTX);
 
 void setup() {
+
+//===================================================== ИНИЦИЛИЗАЦИЯ GPS =====================================================
   Serial.begin(9600);
   SerialGPS.begin(9600);
   gps.begin(SerialGPS);
 
+
+
   while (!Serial) {
-    ; 
-    }
-
-
+    ;
+  }
   Serial.print("Initializing SD card...");
-
-
   if (!SD.begin(chipSelect)) {
     Serial.println("Card failed, or not present");
-    
-    while (1);
+    return;
   }
   Serial.println("card initialized.");
 }
@@ -34,22 +33,22 @@ void setup() {
 
 void loop() {
   gps.read();
-  if (gps.errPos) {
-    Serial.println("Координаты недостоверны");
-    delay(2000); 
-    return;
-  }
+  if (!gps.errPos) {
 
-  String dataString = String(gps.latitude, 6) + " " + String(gps.longitude, 6)+ ", " + String(gps.Hours) + ":" + String(gps.minutes) + ":" + String(gps.seconds) + ", " + String(gps.speed);
-  File dataFile = SD.open("datalog.txt", FILE_WRITE);
+    String dataString = "GPS: " + String(gps.latitude, 6) + " " + String(gps.longitude, 6) + ", " + String(gps.Hours) + ":" + String(gps.minutes) + ":" + String(gps.seconds) + ", " + String(gps.speed);
+    File dataFile = SD.open("datalog.txt", FILE_WRITE);
 
 
-  if (dataFile) {
-    dataFile.println(dataString);
-    dataFile.close();
-    Serial.println(dataString);
+    if (dataFile) {
+      dataFile.println(dataString);
+      dataFile.close();
+      Serial.println(dataString);
+    }
+    else {
+      Serial.println("error opening datalog.txt");
+    }
+
   }
-  else {
-    Serial.println("error opening datalog.txt");
-  }
+
+
 }
