@@ -47,11 +47,11 @@ void setup() {
 void loop() {
 
 
-//===================================================== ОПРОС GPS МОДУЛЯ И ЗАПИСЬ ДАННЫХ НА SD КАРТУ =====================================================
+//===================================================== ОПРОС ДАТЧИКОВ И ЗАПИСЬ ДАННЫХ НА SD КАРТУ =====================================================
   gps.read();
-  if (!gps.errPos) {
+  if ((!gps.errPos) && (htu.readTick())) {
 
-    String dataString = "GPS: " + String(gps.latitude, 6) + " " + String(gps.longitude, 6) + ", " + String(gps.Hours) + ":" + String(gps.minutes) + ":" + String(gps.seconds) + ", " + String(gps.speed);
+    String dataString = "DATA: " + String(gps.latitude, 6) + " " + String(gps.longitude, 6) + " " + String(gps.Hours) + ":" + String(gps.minutes) + ":" + String(gps.seconds) + " " + String(gps.speed) + " " + String(htu.getTemperature(), 1) + " " + String(htu.getHumidity(), 1);
     File dataFile = SD.open("datalog.txt", FILE_WRITE);
 
 
@@ -64,24 +64,5 @@ void loop() {
       Serial.println("error opening datalog.txt");
     }
 
-  }
-
-  
-//===================================================== ОПРОС ДАТЧИКА HTU21D И ЗАПИСЬ ДАННЫХ НА SD КАРТУ =====================================================
-  if (htu.readTick()) {
-    // можно забирать значения здесь или в другом месте программы
-    String temp_and_hum = "T:" + String(htu.getTemperature(), 1) + " " + String(htu.getHumidity(), 1);
-
-    File dataFile = SD.open("datalog.txt", FILE_WRITE);
-
-
-    if (dataFile) {
-      dataFile.println(temp_and_hum);
-      dataFile.close();
-      Serial.println(temp_and_hum);
-    }
-    else {
-      Serial.println("error opening datalog.txt");
-    }
   }
 }
